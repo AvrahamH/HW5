@@ -114,7 +114,7 @@ HW_component * add_sorted_components(HW_component *head, char *name, char *copie
 Return parameters: HW_component pointer that represent the head of the nested list that was made out of the arguments in the file
 Function functionallity: opens a file and make out of every line a new HW_component and sortes the nested list of this HW_components , returns
 a pointer to this head of the nested list*/
-HW_component * init(char * componnets_list) {
+HW_component * init(char *componnets_list) {
 	FILE *fp;
 	char comp[MAX_LINE_LENGTH], name[NAME_LENGTH], copies[NAME_LENGTH];
 	int counter = 0, i = 0, len_comp , j = 0 , k = 0;
@@ -152,28 +152,28 @@ HW_component * init(char * componnets_list) {
 	return head;
 }
 
-void rename_componnent(char*  hw_component_name, char*  new_hw_component_name) {
+void rename_componnent(char* hw_component_name, char*  new_hw_component_name) {
 
 }
 
 
 
-void returned_component(char*  hw_component_name, int copies) {
+void returned_component(char* hw_component_name, int copies) {
 
 }
 
 
-void production(char*  hw_component_name, int copies) {
+void production(char* hw_component_name, int copies) {
 
 }
 
 
-void fatal_malfunction(char*  hw_component_name, int copies) {
+void fatal_malfunction(char* hw_component_name, int copies) {
 
 }
 
 
-void fire(char*  hw_component_name, int copies) {
+void fire(char* hw_component_name, int copies) {
 
 }
 
