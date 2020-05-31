@@ -1,0 +1,16 @@
+Hub $$$ 107
+Hub pro $$$ 155
+Hub ultra $$$ 92
+Hub ultraZZZZZ $$$ 12
+Modem $$$ 92
+Modem ultra $$$ 100
+Nic $$$ 122
+Nic 100GG $$$ 13
+Nic pro 2000GG $$$ 8248
+Router $$$ 120
+Router pro112 10000GG $$$ 200
+Router promore 10000GG $$$ 79
+Router ultra $$$ 200
+Switch $$$ 80
+Switch pro $$$ 80
+ZNic $$$ 20

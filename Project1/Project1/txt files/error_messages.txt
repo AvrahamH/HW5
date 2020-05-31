@@ -1,0 +1,6 @@
+// Memory Allocation failure
+printf("Error: memory allocation failed\n");
+// Bad number of arguments
+printf("Error: invalid number of arguments (<%d> instead of 3)\n",number_of_actual_arguments_recieved);
+// Error with opening a file
+printf("Error: opening %s failed\n", file_name);

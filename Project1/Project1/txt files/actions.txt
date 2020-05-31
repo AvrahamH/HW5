@@ -1,0 +1,13 @@
+Initialize
+Returned_from_customer $$$ Hub ultra $$$ 12
+Fire $$$ Hub $$$ 13
+Returned_from_customer $$$ Modem $$$ 12
+Production $$$ Nic $$$ 2
+Fire $$$ Router promore 10000GG $$$ 1
+Rename $$$ Router pro 100GG $$$ Router pro112 10000GG
+Returned_from_customer $$$ Hub pro $$$ 5
+Production $$$ Nic pro 2000GG $$$ 8
+Fatal_malfunction $$$ Nic 100GG $$$ 7
+Production $$$ Nic pro 2000GG $$$ 8000
+Returned_from_customer $$$ Hub ultraZZZZZ $$$ 12
+Finalize
