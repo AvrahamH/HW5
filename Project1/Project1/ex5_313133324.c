@@ -16,10 +16,10 @@ typedef struct hw_component {
 /*Inputs: a line that was read from the file (hw_components or actions), empty list of strings, and an indicator
 Return parameters: None
 Function functionality: splitting the read line into 2 or 3 different strings by "$" delimeter, depends on the indicator:
-2 for hw_components and 3 for actions */
+2 for hw_components and 3 for actions (and deleting \n from the end of the line if exists)*/
 void split(char line[], char split_str[][NAME_LENGTH], int ind) {
 	char *token = NULL;
-
+	if(line[strlen(line) - 1] == '\n') line[strlen(line) - 1] = '\0';
 	switch (ind) {
 	case 2:
 		token = strtok(line, "$");
@@ -72,9 +72,13 @@ Return parameters: int, that represents which string is first alphabethically
 Function functionality: check which one of the strings comes first alphabehtically  */
 int str_sort(const char *str_a, const char *str_b) {
 	int i, len_a = strlen(str_a), len_b = strlen(str_b);
-	
-	for (i = 0; i < len_a && i < len_b; i++)
-		return str_a[i] < str_b[i] ? 1 : 0;
+
+	for (i = 0; i < len_a && i < len_b; i++) {
+		if (str_a[i] < str_b[i])
+			return 1;
+		if (str_a[i] > str_b[i])
+			return 0;
+	}
 	if (len_a >= len_b)
 		return 0;
 	return 0;
@@ -174,6 +178,24 @@ HW_component* init(char *components_list) {
 	return head;
 }
 
+/*Inputs: a HW_component pointer of the head of the nested list and destination file address
+Return parameters: None
+Function functionality: printing the components nested list into a file in the given destination*/
+void Finalize(char *destination, HW_component *head) {
+	FILE *fp;
+	HW_component *temp = head;
+	if (NULL == (fp = fopen(destination, "w"))) {
+		printf("Error opening file");
+		exit(1);
+	}
+	while (temp->next != NULL) {
+		fprintf(fp, "%s $$$ %d\n", temp->name, temp->copies);
+		temp = temp->next;
+	}
+	fprintf(fp, "%s $$$ %d", temp->name, temp->copies);
+	fclose(fp);
+}
+
 /*Inputs: a HW_component pointer of the head of the nested list and 2 name strings: current name and a new name
 Return parameters : HW_component pointer that represent the head of the nested list
 Function functionality : checks if there is a component with that name if not does nothing if there is, then deletes the old one and creates
@@ -232,16 +254,20 @@ HW_component* fire(char *hw_component_name, char *copies, HW_component *head) {
 	return fatal_malfunction(hw_component_name, copies, head);
 }
 
-void Actions(char *action_list) {
+/*Inputs: a list of the files directories by this order: hw_components, actions, updated_components
+Return parameters: None
+Function functionality: 1. initializing the components nested list(by alphabethically order)
+						2. reads each action from "actions" file and sending the components list to each action with the relevant parameters,
+						3. and eventually writing the updates into a new file and freeing the allocated memory*/
+void Actions(char **file_list) {
 	FILE *fp;
 	char action[MAX_LINE_LENGTH];
-	if (NULL == (fp = fopen(action_list, "r"))) {
+	if (NULL == (fp = fopen(file_list[2], "r"))) {
 		printf("Error opening file");
 		exit(1);
 	}
 	fgets(action, MAX_LINE_LENGTH, fp);
-	HW_component *head = init("hw_components.txt"), *temp = head;
-	print_components(temp);
+	HW_component *head = init(file_list[1]), *temp = head;
 	char split_str[3][NAME_LENGTH];
 	
 	while (fgets(action, MAX_LINE_LENGTH, fp) != NULL && action != NULL && strcmp(action, "Finalize") != 0) {
@@ -257,20 +283,12 @@ void Actions(char *action_list) {
 		if (strcmp(split_str[0], "Fire") == 0)
 			head = fire(split_str[1], split_str[2], head);
 	}
-	print_components(head);
+	fclose(fp);
+	Finalize(file_list[3], head);
 	free_components(head);
 }
 
-int main(){
-	/*HW_component *head,*temp;
-	head = init("hw_components.txt");
-	temp = head;
-	print_components(temp);
-	head = rename_component("Router pro 100GG", "Router pro112 10000GG" ,head);
-	head = returned_component("Hub ultraZZZZZ", "12" , head);
-	head = fire("Router promore 10000GG", "10", head);
-	print_components(head);
-	free_components(head);*/
-	Actions("txt files/actions.txt");
+int main(int argc, char* argv[]){
+	Actions(argv);
 	return 0;
 }
