@@ -50,7 +50,7 @@ void print_components(HW_component *head) {
 	if (head == NULL)
 		printf("\n");
 	else {
-		printf("%s %d \n", head->name, head->copies);
+		printf("%s %d\n", head->name, head->copies);
 		print_components(head->next);
 	}
 }
@@ -166,10 +166,8 @@ HW_component* init(char *components_list) {
 		exit(1);
 	}
 	char split_str[2][NAME_LENGTH];
-	while (fgets(comp, MAX_LINE_LENGTH, fp) != NULL) {
+	while (fgets(comp, MAX_LINE_LENGTH, fp) != NULL && comp != NULL) {
 		split(comp, split_str, 2);
-		if (comp == NULL)
-			break;
 		new_comp_to_add = new_component(split_str[0], split_str[1]);
 		head = add_to_sorted_components(head, new_comp_to_add);
 	}
@@ -234,15 +232,45 @@ HW_component* fire(char *hw_component_name, char *copies, HW_component *head) {
 	return fatal_malfunction(hw_component_name, copies, head);
 }
 
+void Actions(char *action_list) {
+	FILE *fp;
+	char action[MAX_LINE_LENGTH];
+	if (NULL == (fp = fopen(action_list, "r"))) {
+		printf("Error opening file");
+		exit(1);
+	}
+	fgets(action, MAX_LINE_LENGTH, fp);
+	HW_component *head = init("hw_components.txt"), *temp = head;
+	print_components(temp);
+	char split_str[3][NAME_LENGTH];
+	
+	while (fgets(action, MAX_LINE_LENGTH, fp) != NULL && action != NULL && strcmp(action, "Finalize") != 0) {
+		split(action, split_str, 3);
+		if (strcmp(split_str[0], "Rename") == 0)
+			head = rename_component(split_str[1], split_str[2], head);
+		if (strcmp(split_str[0], "Returned_from_customer") == 0)
+			head = returned_component(split_str[1], split_str[2], head);
+		if (strcmp(split_str[0], "Production") == 0)
+			head = production(split_str[1], split_str[2], head);
+		if (strcmp(split_str[0], "Fatal_malfunction") == 0)
+			head = fatal_malfunction(split_str[1], split_str[2], head);
+		if (strcmp(split_str[0], "Fire") == 0)
+			head = fire(split_str[1], split_str[2], head);
+	}
+	print_components(head);
+	free_components(head);
+}
+
 int main(){
-	HW_component *head,*temp;
+	/*HW_component *head,*temp;
 	head = init("hw_components.txt");
 	temp = head;
 	print_components(temp);
-	head = rename_component("Router pro 100GG ", "Router pro112 10000GG " ,head);
-	head = returned_component("Hub ultraZZZZZ ", "12" , head);
-	head = fire("Router promore 10000GG ", "10", head);
+	head = rename_component("Router pro 100GG", "Router pro112 10000GG" ,head);
+	head = returned_component("Hub ultraZZZZZ", "12" , head);
+	head = fire("Router promore 10000GG", "10", head);
 	print_components(head);
-	free_components(head);
+	free_components(head);*/
+	Actions("txt files/actions.txt");
 	return 0;
 }
