@@ -7,40 +7,57 @@
 #include <stdlib.h>
 
 // define struct
-typedef struct hw_component
-{
+typedef struct hw_component {
 	char name[NAME_LENGTH];
 	int copies;
 	struct hw_component *next;
 }HW_component;
 
-/*Inputs: a string
-Return parameters: int that represnts the value of the string
-Function functionallity: convert a strimg that represents a number into an int*/
-int char_to_int(char *number) {
-	int new_number = 0;
-	int i = 0;
-	while (number[i] >= '0' && number[i] <= '9')
-	{
-		new_number *= 10;
-		new_number += number[i] - '0';
-		i++;
+/*Inputs: a line that was read from the file (hw_components or actions), empty list of strings, and an indicator
+Return parameters: None
+Function functionality: splitting the read line into 2 or 3 different strings by "$" delimeter, depends on the indicator:
+2 for hw_components and 3 for actions */
+void split(char line[], char split_str[][NAME_LENGTH], int ind) {
+	char *token = NULL;
+
+	switch (ind) {
+	case 2:
+		token = strtok(line, "$");
+		token[strlen(token) - 1] = '\0';
+		strcpy(split_str[0], token);
+
+		token = strtok(NULL, "$");
+		strcpy(split_str[1], ++token);
+		break;
+
+	case 3:
+		token = strtok(line, "$");
+		token[strlen(token) - 1] = '\0';
+		strcpy(split_str[0], token);
+
+		token = strtok(NULL, "$");
+		token++[strlen(token) - 1] = '\0';
+		strcpy(split_str[1], token);
+
+		token = strtok(NULL, "$");
+		strcpy(split_str[2], ++token);
+		break;
 	}
-	return new_number;
 }
-/* a test function should be delated*/
+
+/* a test function should be deleted*/
 void print_components(HW_component *head) {
 	if (head == NULL)
 		printf("\n");
 	else {
-		printf("%s%d \n", head->name, head->copies);
+		printf("%s %d \n", head->name, head->copies);
 		print_components(head->next);
 	}
-
 }
+
 /*Inputs: a pointer to the head of a nested list of HW_components
 Return parameters: None
-Function functionallity: freeing the memory which was allocated to the nested list we use in this progrem */
+Function functionality: freeing the memory which was allocated to the nested list we use in this progrem */
 void free_components(HW_component *head) {
 	HW_component* temp;
 	while (head != NULL) {
@@ -48,48 +65,41 @@ void free_components(HW_component *head) {
 		head = head->next;
 		free(temp);
 	}
-
 }
+
 /*Inputs: 2 strings
-Return parameters: int , that represnts which string is first alphabetically 
-Function functionallity: check which one of the strings comes first alphabetically  */
+Return parameters: int, that represents which string is first alphabethically 
+Function functionality: check which one of the strings comes first alphabehtically  */
 int str_sort(const char *str_a, const char *str_b) {
-	int i , j = 0 ,len_a = strlen(str_a) , len_b = strlen(str_b);
-	for (i = 0, j = 0; i < len_a && j < len_b; i++, j++) {
-		if (str_a[i] < str_b[j]) {
-			return 1;
-		}
-		if (str_a[i] > str_b[j]) {
-			return 0;
-		}
-	}
-	if (len_a >= len_b) {
-		return 0;
-	}
+	int i, len_a = strlen(str_a), len_b = strlen(str_b);
 	
+	for (i = 0; i < len_a && i < len_b; i++)
+		return str_a[i] < str_b[i] ? 1 : 0;
+	if (len_a >= len_b)
+		return 0;
 	return 0;
-
 }
+
 /*Inputs: a name string and a string that represents the number of copies 
 Return parameters: a pointer to new HW_component object
-Function functionallity: create new HW_component and returnes a pointer to them  */
-HW_component *new_component(char *name, char *copies) {
+Function functionality: create new HW_component and returns a pointer to them*/
+HW_component* new_component(char *name, char *copies) {
 	HW_component *result = (HW_component*)malloc(sizeof(HW_component));
 	if (result == NULL) {
 		printf("Error: memory allocation failed\n");
 		exit(1);
 	}
 	strcpy(result->name, name);
-	result->copies = char_to_int(copies);
+	result->copies = atoi(copies);
 	result->next = NULL;
 	return result;
 }
 
 /*Inputs: a HW_component pointer of the head of the nested list and  a name string
-Return parameters: HW_component pointer that represent the component without the HW_component with that name
-Function functionallity: checks if  compeonent in the nested list has this name if there is , delete it and return a pointer
-to the new nested list if not returnes the head has is */
-HW_component *del_comp(HW_component *head, char *comp_name) {
+Return parameters: HW_component pointer that represents the component without the HW_component with that name
+Function functionality: checks if a component in the nested list has this name. If there is, delete it and return a pointer to the new nested list,
+if not returns the head as is*/
+HW_component* del_comp(HW_component *head, char *comp_name) {
 	HW_component* iter = head, *prev = NULL;
 	if (head == NULL)
 		return head;
@@ -112,31 +122,29 @@ HW_component *del_comp(HW_component *head, char *comp_name) {
 
 /*Inputs: a HW_component pointer of the head of the nested list and a name string 
 Return parameters: HW_component pointer that represent the component with that name string
-Function functionallity: checks if  compeonent in the nested list has this name if there is returnes his pointer if not returnes NULL */
-HW_component *is_in(HW_component *head, char* name) {
+Function functionality: checks if  compeonent in the nested list has this name if there is returns his pointer if not returns NULL */
+HW_component* is_in(HW_component *head, char *name) {
 	while (head != NULL) {
-		if (strcmp(name, head->name) == 0)
-			return head;
+		if (strcmp(name, head->name) == 0) return head;
 		head = head->next;
-	   }
-	return NULL;
-
- }
-/*Inputs: a HW_component pointer of the head of the nested list  a name string and a string that represents the number of copies 
-Return parameters: HW_component pointer that represent the head of the nested list with the new node 
-Function functionallity: create new HW_component and put's him in his place in the sorted nested list and reurnes the pointer to the head of the
-nested list */
-HW_component * add_to_sorted_components(HW_component *head, HW_component *new_comp_to_add) {
-	HW_component* iter, *prev = NULL;
-	if (head == NULL) {
-		return new_comp_to_add;
 	}
+	return NULL;
+ }
+
+/*Inputs: a HW_component pointer of the head of the nested list, a name string and a string that represents the number of copies 
+Return parameters: HW_component pointer that represent the head of the nested list with the new node 
+Function functionality: create new HW_component and put's him in his place in the sorted nested list and reurnes the pointer to the head of the
+nested list */
+HW_component* add_to_sorted_components(HW_component *head, HW_component *new_comp_to_add) {
+	HW_component *iter, *prev = NULL;
+	if (head == NULL) return new_comp_to_add;
+
 	if (str_sort(new_comp_to_add->name, head->name) == 1) {
 		new_comp_to_add->next = head;
 		return new_comp_to_add;
 	}
 	iter = head;
-	while (iter != NULL  && str_sort(new_comp_to_add ->name ,iter ->name) == 0  ){
+	while (iter != NULL && str_sort(new_comp_to_add->name, iter->name) == 0) {
 		prev = iter;
 		iter = iter->next;
 	}
@@ -145,55 +153,34 @@ HW_component * add_to_sorted_components(HW_component *head, HW_component *new_co
 	return head;
 }
 
-
 /*Inputs: a string that represents a file name
-Return parameters: HW_component pointer that represent the head of the nested list that was made out of the arguments in the file
-Function functionallity: opens a file and make out of every line a new HW_component and sortes the nested list of this HW_components , returns
+Return parameters: HW_component pointer that represents the head of the nested list that was made out of the arguments in the file
+Function functionality: opens a file and creates out of every line a new HW_component and sorts the nested list of this HW_components, returns
 a pointer to this head of the nested list*/
-HW_component * init(char *componnets_list) {
+HW_component* init(char *components_list) {
 	FILE *fp;
-	char comp[MAX_LINE_LENGTH], name[NAME_LENGTH], copies[NAME_LENGTH];
-	int counter = 0, i = 0, len_comp , j = 0 , k = 0;
-	HW_component  *head = NULL , *new_comp_to_add;
-	if (NULL == (fp = fopen(componnets_list, "r"))) {
+	char comp[MAX_LINE_LENGTH];
+	HW_component *head = NULL, *new_comp_to_add;
+	if (NULL == (fp = fopen(components_list, "r"))) {
 		printf("Error opening file");
 		exit(1);
 	}
+	char split_str[2][NAME_LENGTH];
 	while (fgets(comp, MAX_LINE_LENGTH, fp) != NULL) {
+		split(comp, split_str, 2);
 		if (comp == NULL)
 			break;
-		len_comp = strlen(comp);
-		for (i = 0, k = 0, j = 0; i < len_comp && comp[i] != '\n'; i++) {
-			if (comp[i] == '$') {
-				counter += 1;
-				continue;
-			}
-			if (counter == 3) {
-				if (comp[i] != ' ') {
-					copies[k] = comp[i];
-					k++;
-				}
-				continue;
-			}
-			if (counter < 3) {
-				name[j] = comp[i];
-				j++;
-			}
-		}
-		counter = 0;
-		name[j] = '\0';
-		copies[k] = '\0';
-		new_comp_to_add = new_component(name, copies);
+		new_comp_to_add = new_component(split_str[0], split_str[1]);
 		head = add_to_sorted_components(head, new_comp_to_add);
 	}
 	return head;
 }
 
-/*Inputs: a HW_component pointer of the head of the nested list and 2 name strings
+/*Inputs: a HW_component pointer of the head of the nested list and 2 name strings: current name and a new name
 Return parameters : HW_component pointer that represent the head of the nested list
-Function functionallity : checks if there is a component with that name if not does nothins if there is , then delets the old one and create
+Function functionality : checks if there is a component with that name if not does nothing if there is, then deletes the old one and creates
 a new one with the new name */
-HW_component *rename_componnent(char* hw_component_name, char* new_hw_component_name ,HW_component *head) {
+HW_component* rename_component(char *hw_component_name, char *new_hw_component_name ,HW_component *head) {
 	HW_component *temp1, *new_comp ;
 	temp1 = head;
 	if ((temp1 = is_in(temp1, hw_component_name)) == NULL)
@@ -204,49 +191,58 @@ HW_component *rename_componnent(char* hw_component_name, char* new_hw_component_
 	return add_to_sorted_components(head, new_comp);
 }
 
-/*Inputs: a HW_component pointer of the head of the nested list a name string and the amount of copies string
-Return parameters : HW_component pointer that represent the head of the nested list 
-Function functionallity : checks if there is a component with that name if not create  it . if there is , then adds the copies to
+/*Inputs: a HW_component pointer of the head of the nested list, a name string and the amount of copies string
+Return parameters : HW_component pointer that represents the head of the nested list 
+Function functionality : checks if there is a component with that name. if not create it, if there is, then adds the copies to
 the copies field of the component */
-HW_component *returned_component(char* hw_component_name, char  *copies , HW_component *head) {
+HW_component* returned_component(char *hw_component_name, char *copies, HW_component *head) {
 	HW_component *temp1, *new_comp;
 	temp1 = head;
 	if ((temp1 = is_in(temp1, hw_component_name)) == NULL) {
 		new_comp = new_component(hw_component_name, copies);
 		return add_to_sorted_components(head, new_comp);
 	}
-	temp1->copies += char_to_int(copies);
+	temp1->copies += atoi(copies);
 	return head;
 }
 
-/*Inputs: a HW_component pointer of the head of the nested list a name string and the amount of copies string
-Return parameters : HW_component pointer that represent the head of the nested list
-Function functionallity : checks if there is a component with that name if not create  it . if there is , then adds the copies to
-the copies field of the component */
-HW_component *production(char* hw_component_name, char* copies , HW_component *head) {
+/*Inputs: a HW_component pointer of the head of the nested list, a name string and the amount of copies string
+Return parameters : HW_component pointer that represents the head of the nested list
+Function functionality : checks if there is a component with that name, if not-create it. if there is, then adds the copies to
+the copies field of the component*/
+HW_component* production(char *hw_component_name, char *copies, HW_component *head) {
 	return returned_component(hw_component_name, copies, head);	
 }
 
-
-HW_component *fatal_malfunction(char* hw_component_name, char *copies) {
-
+/*Inputs: a HW_component pointer of the head of the nested list, a malfunctioned component name string and the amount of copies this component
+Return parameters : HW_component pointer that represents the head of the nested list
+Function functionality : checks if there is a component with that name, if not-do nothing. If it exists, then remove the amount of malfunctioned 
+comps from the existing amount (or put 0 if that amount is bigger than the available number)*/
+HW_component* fatal_malfunction(char *hw_component_name, char *copies, HW_component *head) {
+	HW_component *temp = head;
+	if ((temp = is_in(temp, hw_component_name)) == NULL)
+		return head;
+	temp->copies = temp->copies < atoi(copies) ? 0 : temp->copies - atoi(copies);
+	return head;
 }
 
-
-HW_component *fire(char* hw_component_name, char *copies) {
-
+/*Inputs: a HW_component pointer of the head of the nested list, a burnt component name string and the amount of copies this component
+Return parameters : HW_component pointer that represents the head of the nested list
+Function functionality : checks if there is a component with that name, if not-do nothing. If it exists, then remove the amount of burnt
+comps from the existing amount (or put 0 if that amount is bigger than the available number)*/
+HW_component* fire(char *hw_component_name, char *copies, HW_component *head) {
+	return fatal_malfunction(hw_component_name, copies, head);
 }
-
 
 int main(){
-	HW_component *head ,*temp;
+	HW_component *head,*temp;
 	head = init("hw_components.txt");
 	temp = head;
 	print_components(temp);
-	head = rename_componnent("Router pro 100GG ", "Router pro112 10000GG " ,head);
-	head = returned_component("Hub ultraZZZZZ ", 12 , head);
+	head = rename_component("Router pro 100GG ", "Router pro112 10000GG " ,head);
+	head = returned_component("Hub ultraZZZZZ ", "12" , head);
+	head = fire("Router promore 10000GG ", "10", head);
 	print_components(head);
 	free_components(head);
 	return 0;
-
 }
