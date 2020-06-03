@@ -45,16 +45,6 @@ void split(char line[], char split_str[][NAME_LENGTH], int ind) {
 	}
 }
 
-/* a test function should be deleted*/
-void print_components(HW_component *head) {
-	if (head == NULL)
-		printf("\n");
-	else {
-		printf("%s %d\n", head->name, head->copies);
-		print_components(head->next);
-	}
-}
-
 /*Inputs: a pointer to the head of a nested list of HW_components
 Return parameters: None
 Function functionality: freeing the memory which was allocated to the nested list we use in this progrem */
@@ -267,7 +257,7 @@ void Actions(char **file_list) {
 		exit(1);
 	}
 	fgets(action, MAX_LINE_LENGTH, fp);
-	HW_component *head = init(file_list[1]), *temp = head;
+	HW_component *head = init(file_list[1]);
 	char split_str[3][NAME_LENGTH];
 	
 	while (fgets(action, MAX_LINE_LENGTH, fp) != NULL && action != NULL && strcmp(action, "Finalize") != 0) {
