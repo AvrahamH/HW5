@@ -77,10 +77,11 @@ int str_sort(const char *str_a, const char *str_b) {
 /*Inputs: a name string and a string that represents the number of copies 
 Return parameters: a pointer to new HW_component object
 Function functionality: create new HW_component and returns a pointer to them*/
-HW_component* new_component(char *name, char *copies) {
+HW_component* new_component(char *name, char *copies, HW_component *head) {
 	HW_component *result = (HW_component*)malloc(sizeof(HW_component));
 	if (result == NULL) {
 		printf("Error: memory allocation failed\n");
+		free_components(head);
 		exit(1);
 	}
 	strcpy(result->name, name);
@@ -162,9 +163,10 @@ HW_component* init(char *components_list) {
 	char split_str[2][NAME_LENGTH];
 	while (fgets(comp, MAX_LINE_LENGTH, fp) != NULL && comp != NULL) {
 		split(comp, split_str, 2);
-		new_comp_to_add = new_component(split_str[0], split_str[1]);
+		new_comp_to_add = new_component(split_str[0], split_str[1], head);
 		head = add_to_sorted_components(head, new_comp_to_add);
 	}
+	fclose(fp);
 	return head;
 }
 
@@ -195,7 +197,7 @@ HW_component* rename_component(char *hw_component_name, char *new_hw_component_n
 	temp1 = head;
 	if ((temp1 = is_in(temp1, hw_component_name)) == NULL)
 		return head;
-	new_comp = new_component(new_hw_component_name, "0");
+	new_comp = new_component(new_hw_component_name, "0", head);
 	new_comp->copies = temp1->copies;
 	head = del_comp(head, temp1->name);
 	return add_to_sorted_components(head, new_comp);
@@ -209,7 +211,7 @@ HW_component* returned_component(char *hw_component_name, char *copies, HW_compo
 	HW_component *temp1, *new_comp;
 	temp1 = head;
 	if ((temp1 = is_in(temp1, hw_component_name)) == NULL) {
-		new_comp = new_component(hw_component_name, copies);
+		new_comp = new_component(hw_component_name, copies, head);
 		return add_to_sorted_components(head, new_comp);
 	}
 	temp1->copies += atoi(copies);
