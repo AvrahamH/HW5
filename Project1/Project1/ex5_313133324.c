@@ -74,7 +74,7 @@ int str_sort(const char *str_a, const char *str_b) {
 	return 0;
 }
 
-/*Inputs: a name string and a string that represents the number of copies 
+/*Inputs: a HW_component pointer of the head of the nested list, a name string and a string that represents the number of copies 
 Return parameters: a pointer to new HW_component object
 Function functionality: create new HW_component and returns a pointer to them*/
 HW_component* new_component(char *name, char *copies, HW_component *head) {
@@ -157,7 +157,7 @@ HW_component* init(char *components_list) {
 	char comp[MAX_LINE_LENGTH];
 	HW_component *head = NULL, *new_comp_to_add;
 	if (NULL == (fp = fopen(components_list, "r"))) {
-		printf("Error opening file");
+		printf("Error: opening %s failed\n", components_list);
 		exit(1);
 	}
 	char split_str[2][NAME_LENGTH];
@@ -177,7 +177,7 @@ void Finalize(char *destination, HW_component *head) {
 	FILE *fp;
 	HW_component *temp = head;
 	if (NULL == (fp = fopen(destination, "w"))) {
-		printf("Error opening file");
+		printf("Error: opening %s failed\n", destination);
 		exit(1);
 	}
 	while (temp->next != NULL) {
@@ -255,7 +255,7 @@ void Actions(char **file_list) {
 	FILE *fp;
 	char action[MAX_LINE_LENGTH];
 	if (NULL == (fp = fopen(file_list[2], "r"))) {
-		printf("Error opening file");
+		printf("Error: opening %s failed\n", file_list[2]);
 		exit(1);
 	}
 	fgets(action, MAX_LINE_LENGTH, fp);
@@ -281,6 +281,10 @@ void Actions(char **file_list) {
 }
 
 int main(int argc, char* argv[]){
+	if (argc != 4) {
+		printf("Error: invalid number of arguments (<%d> instead of 3)\n", argc - 1);
+		exit(1);
+	}
 	Actions(argv);
 	return 0;
 }
